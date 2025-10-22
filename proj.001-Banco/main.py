@@ -1,4 +1,4 @@
-from banco import cadastro
+from banco import login, cadastro
 
 while True:
     print("-="*15)
@@ -14,8 +14,7 @@ while True:
         opc = int(opc)
         
         if opc == 1:
-            ...
-            # login()
+            login()
         elif opc == 2:
             cadastro()
         elif opc == 3:

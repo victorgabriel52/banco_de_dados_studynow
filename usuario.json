@@ -1,12 +1,8 @@
 [
     {
-        "nome": "josé",
+        "nome": "andr\u00e9",
         "cpf": "555",
-        "senha": "555"
-    },
-    {
-        "nome": "maria",
-        "cpf": "8171",
-        "senha": "9858"
+        "senha": "555",
+        "saldo": 850.0
     }
 ]

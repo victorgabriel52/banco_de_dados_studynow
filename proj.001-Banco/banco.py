@@ -2,9 +2,43 @@ import json
 import sys
 import os
 
-def menu_banco():
+def carregar_usuário():
+    with open('usuario.json', 'r', encoding='utf-8') as arquivo:
+        return json.load(arquivo)
 
 
+def salvar_usuario(dados):
+    with open('usuario.json', 'w', encoding='utf-8')as arquivo:
+        json.dump(dados, arquivo, indent=4)
+
+def saque(usuario, usuarios):
+
+    saldo = usuario['saldo']
+
+    valor = input("\nValor do saque: ")
+    if valor.isnumeric():
+        valor = int(valor)
+        if valor <= saldo:
+            saldo -= valor
+            usuario['saldo'] = saldo
+            salvar_usuario(usuarios)
+            print(f"O saque de R${valor:.2f} foi efetuado com sucesso!")
+        else:
+            print("Saldo insuficiente!")
+    else:
+        print("Digite um valor válido")
+
+
+def menu_banco(cpf_logado):
+
+    usuarios = carregar_usuário()
+    usuario = next((u for u in usuarios if u["cpf"] == cpf_logado), None)
+
+    if not usuario:
+        print("Não existe esse usuário!")
+        return
+
+    saldo = usuario['saldo']
 
     while True:
         print("-="*15)
@@ -22,11 +56,11 @@ def menu_banco():
         if opc.isnumeric():
             opc = int(opc)
             if opc == 1:
-                print("Saldo aqui")
+                print(f"\nSaldo atual: {saldo:.2f}\n")
             if opc == 2:
                 print("trasferência aqui")
             if opc == 3:
-                print("Saque aqui")
+                saque(usuario, usuarios)
             if opc == 4:
                 print("Deposito aqui")
             if opc == 5:
@@ -40,39 +74,45 @@ def menu_banco():
 
 
 
-# def login():
+def login():
+    while True:
+        cpf = input("Digite um cpf para logar: ").strip()
+        senha = input("Digite uma senha: ")
 
-#     while True:
-#         cpf = input("Digite seu cpf: ").strip()
-#         senha = input("Digite sua senha: ")
+        if not cpf or not senha:
+            print("ERRO! digite um cpf ou uma senha")
+            continue
+        
+        if os.path.exists("usuario.json"):
+            with open("usuario.json", 'r', encoding="utf8") as arquivo:
+                try:
+                    usuarios = json.load(arquivo)
+                except json.JSONDecodeError:
+                    print("Erro ao ler arquivo json")
+                    return
+            for usuario in usuarios:
+                if usuario['cpf'] == cpf and usuario['senha'] == senha:
+                    print(f"\nBem vindo de volta {usuario['nome']}\n")
+                    menu_banco(cpf)
+                
+            print("Usuário ou senha incorretos!")
 
-#         if not cpf or not senha:
-#             print("\nERRO! Digite Senha e Cpf\n")
-#             continue
+        else:
+            print("Nenhum usuário cadastrado ainda!")
+            return
 
-#         try:
-#             with open('usuario.json', 'r', encoding='utf-8') as arquivo:
-#                 usuários = json.load(arquivo)
-
-#                 print(f"\nBem vindo, usuário {cpf}\n")
-#                 menu_banco()
-#             else:
-#                 print("\nSenha ou usuário incorretos!\n")
-            
-#         except (FileNotFoundError, FileExistsError):
-#             print("ERRO! ocorreu um erro ao localizar o arquivo")
 
 def cadastro():
     while True:
-        nome = input("Digite seu nome: ")
-        cpf = input("Digite um cpf para cadastro: ")
+        nome = input("Digite seu nome: ").strip()
+        cpf = input("Digite um cpf para cadastro: ").strip()
         senha = input("Digite uma senha: ")
 
         if not cpf or not senha:
             print("ERRO! digite um cpf ou senha!")
             continue
 
-        novo_user = {'nome': nome, 'cpf': cpf, 'senha': senha}
+        novo_user = {'nome': nome, 'cpf': cpf, 'senha': senha, 'saldo': 0.00}
 
         if os.path.exists("usuario.json"):
             with open("usuario.json", 'r', encoding="utf-8") as arquivo:
