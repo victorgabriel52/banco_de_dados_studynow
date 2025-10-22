@@ -1,6 +1,6 @@
-from database import *
-
+import json
 import sys
+import os
 
 def menu_banco():
 
@@ -40,45 +40,56 @@ def menu_banco():
 
 
 
-def login():
+# def login():
 
-    criar_tabela()
+#     while True:
+#         cpf = input("Digite seu cpf: ").strip()
+#         senha = input("Digite sua senha: ")
 
-    while True:
-        cpf = input("Digite seu cpf: ").strip()
-        senha = input("Digite sua senha: ")
+#         if not cpf or not senha:
+#             print("\nERRO! Digite Senha e Cpf\n")
+#             continue
 
-        if not cpf or not senha:
-            print("\nERRO! Digite Senha e Cpf\n")
-            continue
-        
-        con = banco()
-        cur = con.cursor()
-        cur.execute("SELECT * FROM usuarios WHERE cpf = ? AND senha = ?", (cpf, senha))
-        usuário = cur.fetchone()
-        con.close()
+#         try:
+#             with open('usuario.json', 'r', encoding='utf-8') as arquivo:
+#                 usuários = json.load(arquivo)
 
-        if usuário:
-            print(f"\nBem vindo, usuário {cpf}\n")
-            menu_banco()
-        else:
-            print("\nSenha ou usuário incorretos!\n")
-
+#                 print(f"\nBem vindo, usuário {cpf}\n")
+#                 menu_banco()
+#             else:
+#                 print("\nSenha ou usuário incorretos!\n")
+            
+#         except (FileNotFoundError, FileExistsError):
+#             print("ERRO! ocorreu um erro ao localizar o arquivo")
 
 def cadastro():
+    while True:
+        nome = input("Digite seu nome: ")
+        cpf = input("Digite um cpf para cadastro: ")
+        senha = input("Digite uma senha: ")
 
-    criar_tabela()
+        if not cpf or not senha:
+            print("ERRO! digite um cpf ou senha!")
+            continue
 
-    cpf = input("Digite um cpf para cadastro: ")
-    senha = input("Digite uma senha: ")
+        novo_user = {'nome': nome, 'cpf': cpf, 'senha': senha}
 
-    con = banco()
-    cur = con.cursor()
-    try:
-        cur.execute("INSERT INTO usuarios (cpf, senha) VALUES (?, ?)", (cpf, senha))
-        con.commit()
-        print("Usuário cadastrado com sucesso!")
-    except sqlite3.IntegrityError:
-        print("Usuário já cadastrado!")
-    finally:
-        con.close()
+        if os.path.exists("usuario.json"):
+            with open("usuario.json", 'r', encoding="utf-8") as arquivo:
+                try:
+                    usuários = json.load(arquivo)
+                except json.JSONDecodeError:
+                    usuários =[]
+        else:
+            usuários = []
+        
+        usuários.append(novo_user)
+        
+        with open("usuario.json", 'w', encoding='utf-8') as arquivo:
+            json.dump(usuários, arquivo, ensure_ascii=False, indent=4)
+        
+        print(f"Usuário {nome} cadastrado com sucesso")
+        break
+
+
+
